@@ -9,7 +9,7 @@ import sys
 def main(argv):
     if len(argv) > 1:
         print("total arguments is %d" % len(argv));
-
+    qname = dns.name.from_text(argv[1])    
 
 
 
