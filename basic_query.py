@@ -18,6 +18,7 @@ def main(argv):
     ns_server = argv[2] if len(argv) > 2 else '8.8.8.8'   
     qname = dns.name.from_text(argv[1])    
     qmsg = dns.message.make_query(qname, dns.rdatatype.A)
+    #qmsg.use_edns(options=[dns.edns.ECSOption('1.2.3.4',26)])
     reply = dns.query.udp(qmsg,ns_server) 
     print(reply)
 
