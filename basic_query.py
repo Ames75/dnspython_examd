@@ -45,7 +45,6 @@ def main(argv):
         exit()
     args = parse_arguments()
     ns_server = args.dns_server or '119.29.29.29'  
-    subnet_info = args.subnet
     qname = dns.name.from_text(args.domain_name)    
     qmsg = dns.message.make_query(qname, dns.rdatatype.A)
     if args.subnet and add_ECS_options(args.subnet,qmsg):
