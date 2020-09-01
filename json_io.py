@@ -2,15 +2,7 @@
 import sys
 import json
 import os 
-class Reply(dict):
-  def __init__(self,ips):
-    # flags should be in the order of AA,TC,RD,RA  
-    dict.__init__(self, flags=[True, False, True, True],
-                  ips=ips,name="",ttl=0, rtype = 0)
-    self.flags = [True, False, True, True]
-    self.ips = ips
-    self.name = ""
-    self.ttl = 0  
+from dns_class_defs import *
 
 def write_json_file(data, filename='results.json'): 
   appendMode = os.path.exists(filename)
