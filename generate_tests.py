@@ -29,20 +29,21 @@ class TestGenerator():
         flag_list = [bool(reply.flags & dns.flags.AA),  
                      bool(reply.flags & dns.flags.TC),
                      bool(reply.flags & dns.flags.RA)]
-        a_records_set = reply.get_rrset(dns.message.ANSWER, 
+        a_record_set = reply.get_rrset(dns.message.ANSWER, 
                                        qname, dns.rdataclass.IN, 
                                        dns.rdatatype.A)
-        if a_records_set is None:
+        if a_record_set is None:
             print("could not find A answer for ",name)
             return None 
-        ips = []
-        for record in a_records_set:
-            ips.append(record.address)
+        ips = set()
+        ttl = a_record_set.ttl
+        for record in a_record_set:
+            ips.add(record.address)
         #print(type(a_records_set))
-        #print(a_records_set.to_text())
-        reply_obj = dns_class_defs.Reply(ips,flag_list)
+        reply_obj = dns_class_defs.Reply(ips,flag_list,name,ttl)
         #print(flag_list)
         #print(reply.to_text())
+        print(reply_obj)
         return reply_obj
     def query_all_names(self, qname_list):
         print("number of names are ", len(qname_list))
@@ -50,7 +51,7 @@ class TestGenerator():
             self.query_name(name)
 
 def usage():
-    print("usage: generat_tests.py <nameserver ip> [query names or input file] [src ip or subnet]")
+    print("usage: generat_tests.py <nameserver ip> [-n query names or -i input file] [-s src ip or subnet]")
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
