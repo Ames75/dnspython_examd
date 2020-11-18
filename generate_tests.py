@@ -11,6 +11,7 @@ import argparse
 import ipaddress
 import re
 import dns_class_defs
+import json_io
 
 """ TestGenerator class """
 class TestGenerator():
@@ -47,8 +48,10 @@ class TestGenerator():
         return reply_obj
     def query_all_names(self, qname_list):
         print("number of names are ", len(qname_list))
+        reply_list = []
         for name in qname_list:
-            self.query_name(name)
+            reply_list.append(self.query_name(name))
+        return reply_list
 
 def usage():
     print("usage: generat_tests.py <nameserver ip> [-n query names or -i input file] [-s src ip or subnet]")
@@ -60,6 +63,7 @@ def parse_arguments():
     group.add_argument("-n", "--names", nargs='*', help="query name to use, you can have multiple names")
     group.add_argument("-i", "--input_file", help="input file of query names, cannot be used with -n", type=str)
     parser.add_argument("-s", "--src", nargs='?', help="source ip to use, if it is in subnet, then its ECS")
+    parser.add_argument("-o", "--output_file", help="output json file that stores the test results")
     return parser.parse_args()
 
 def getQnamesFromFile(input_file):
@@ -75,6 +79,21 @@ def getQnamesFromFile(input_file):
         fp.close() 
     return None
 
+''' write the results of given queries to a json file that could be '''
+''' used as expected output for tests in futuere '''
+def write_to_file(result_list,output_filename):
+    # if output_filename exists, this function silently overwrites it 
+    json_writer = json_io.JSONProcessor()
+    json_data = {"replies":result_list}
+    if not json_writer.write_json_file(json_data,output_filename):
+        print("Fail to write results into file ", output_filename)
+        exit()
+
+def print_reply_list(result_list):
+    print(len(result_list), "results in total"))
+    for result in result_list:
+        print(result)
+
 def main(argv):
     if len(argv) < 2:
         usage()
@@ -85,7 +104,10 @@ def main(argv):
     #print(type(args.input_file))
     query_names = args.names if not from_file else getQnamesFromFile(args.input_file) 
     test1 = TestGenerator(args.nsip)
-    test1.query_all_names(query_names) 
+    result_list = test1.query_all_names(query_names) 
+    print_reply_list(result_list)
+    if args.output_file is not None:
+        write_to_file(result_list, args.output_file)
 
 if __name__ == "__main__":
     main(sys.argv)
